@@ -1,0 +1,40 @@
+package com.uncia.civil.accumulatenotin.model
+import com.uncia.civil.accumulatenotin.model.Account;
+import com.uncia.civil.accumulatenotin.model.Cibil;
+import java.util.List;
+global com.uncia.civil.accumulatenotin.model.Response response;
+//global List<Integer> list;
+//global Integer val = 50;
+dialect "mvel"
+rule "OD Total"
+    when
+      list : Integer() from [1, 2, 3, 4, 5, 6]
+        $c: Cibil($accounts: listOfAccount)
+       //totalOverDue : Double(intValue >= 10) from accumulate( -------------------------> working!!
+      //$account : Account(  $q: od) from $accounts,            -------------------------> working!!
+     //$account :  Account($q: od) from $accounts not (Account($account.loanType == 50)) from $accounts,
+       //$account :  not(Account(loanType == 50), ($q: od) from $accounts,
+       
+          //$a: Account(loanType == 50) from accounts
+          //not(Account($q: od) from accounts),
+            //$account : not(Account(loanType == 50,  $q: od)) from $accounts,
+       totalOverDue : Double(intValue >= 10) from accumulate(
+        //$account : Account($q: od, $loanType: loanType, not (loanType in '50')) from $accounts,
+        //$account : Account($q: od, $loanType: loanType, not ($loanType == 50) from $accounts,
+        //$account : Account(loanType != 70, $q: od) from $accounts,  -----------> working!!
+        //$account : not Account(loanType != 70, $q: od) from $accounts,
+        //$account : Account((loanType not contains list), $q: od) from $accounts,
+        //$account : Account($loanType : loanType, $q: od) from $accounts,
+        //$account : not(Account(loanType== "50", $q: od)) from $accounts
+         //not (Account(loanType) from $account,
+            init(int count = 0;),
+            action(count += $q;),
+            reverse(count -= $q;),
+            result(count)
+        //)
+        )
+    then
+          System.out.println("totalLoanDue >> " + totalOverDue);
+          System.out.println("totalLoanDue >> " + list);
+          response.setLoanDue(totalOverDue);
+end
